@@ -152,13 +152,13 @@ if (tavern_rand == 1){
   cout << "\nDid you know that you can get speacial health potions that will increase\nyour total health, but you didn't hear that from me...\n\n";
 }
 if (tavern_rand == 2){
-  cout << "\nMaterials can be found all over in Asherland, either by fighting enemies and claiming theirs or by collecting it yourself. Best part of that is theres no danger there...\n\n";
+  cout << "\nMaterials can be found all over in Elaria, either by fighting enemies and claiming theirs or by collecting it yourself. Best part of that is theres no danger there...\n\n";
 }
 if (tavern_rand == 3){
   cout << "\nThey say the creator of this land is very tired and\nsick of this program and writing it as this is the last thing he did on it\nI have no idea what that means but it sounds interesting...\n\n";
 }
 if (tavern_rand == 4){
-  cout << "\nThey say saving your progress is key to making it anywhere in Asherland,\nI've heard you can even cheat the system and back out without saving since there's no\nauto-save feature\nI have no idea what that means but it sounds interesting... \n\n";
+  cout << "\nThey say saving your progress is key to making it anywhere in Elaria,\nI've heard you can even cheat the system and back out without saving since there's no\nauto-save feature\nI have no idea what that means but it sounds interesting... \n\n";
 }
 if (tavern_rand == 5){
   cout << "\nFighting harder enemies may seem worse, but the harder the enemy, the greater\nthe chance at more loot is...\n\n";
@@ -182,7 +182,7 @@ cout << "\033[2J\033[0;0H";
 
 cout << "You decide to gather materials";
 cout << "\nUseful items, used in crafting and upgrading gear,";
-cout << "\ncan be found all over Asherland\n";
+cout << "\ncan be found all over Elaria\n";
 PressEnterToContinue();
 cout << "\033[2J\033[0;0H";
 
