@@ -2,6 +2,8 @@
 
 This project is a C++ based RPG game with object-oriented programming and a player-choice turn-based combat system. The game features dynamic enemy types, an interactive menu, shop mechanics, and a save/load system.
 
+![image](https://github.com/asherShores5/FantasyFightingGame-in-CPP/assets/71547146/693e8b92-f5c6-4e2d-9cac-04efd7defb3e)
+
 ## Download and Play
 
 You can download the executable version of the Fantasy Fighting Game from the releases section of this repository.
