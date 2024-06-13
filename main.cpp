@@ -35,7 +35,7 @@ menu my_menu = {};
 int main() {
     my_menu.start_menu();
     myPlayer.player_setup();
-    cout << "Welcome Adventurer, to Asherlan\n\n\n";
+    cout << "Welcome Adventurer, to Elaria\n\n\n";
     pressEnterToContinue();
 
     // Main game loop
