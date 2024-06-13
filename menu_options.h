@@ -137,13 +137,13 @@ public:
                 cout << "\nDid you know that you can get special health potions that will increase your total health, but you didn't hear that from me...\n\n";
                 break;
             case 2:
-                cout << "\nMaterials can be found all over in Asherland, either by fighting enemies and claiming theirs or by collecting it yourself. Best part of that is there's no danger there...\n\n";
+                cout << "\nMaterials can be found all over in Elaria, either by fighting enemies and claiming theirs or by collecting it yourself. Best part of that is there's no danger there...\n\n";
                 break;
             case 3:
                 cout << "\nThey say the creator of this land is very tired and sick of this program and writing it as this is the last thing he did on it. I have no idea what that means but it sounds interesting...\n\n";
                 break;
             case 4:
-                cout << "\nThey say saving your progress is key to making it anywhere in Asherland. I've heard you can even cheat the system and back out without saving since there's no auto-save feature. I have no idea what that means but it sounds interesting... \n\n";
+                cout << "\nThey say saving your progress is key to making it anywhere in Elaria. I've heard you can even cheat the system and back out without saving since there's no auto-save feature. I have no idea what that means but it sounds interesting... \n\n";
                 break;
             case 5:
                 cout << "\nFighting harder enemies may seem worse, but the harder the enemy, the greater the chance at more loot is...\n\n";
@@ -158,7 +158,7 @@ public:
         int mat_count;
 
         cout << "\033[2J\033[0;0H";
-        cout << "You decide to gather materials\nUseful items, used in crafting and upgrading gear, can be found all over Asherland\n";
+        cout << "You decide to gather materials\nUseful items, used in crafting and upgrading gear, can be found all over Elaria\n";
         PressEnterToContinue();
         cout << "\033[2J\033[0;0H";
 
