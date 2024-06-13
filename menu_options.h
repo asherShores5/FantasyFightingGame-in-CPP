@@ -1,284 +1,185 @@
-//Asher Shores
-//CST-210
-//December 20th, 2020
-//This is my own work
+// Asher Shores
+// CST-210
+// December 20th, 2020
+// This is my own work
+
+#ifndef MENU_OPTIONS_H
+#define MENU_OPTIONS_H
 
 #include <iostream>
-#include <random>
 #include <fstream>
 #include <string>
-#include <stdio.h>
 using namespace std;
 
-//using struc since all stuff in here is mainly dialog
 struct menu {
-
-
 private:
-char input;
-int input_int;
-int tavern_rand;
-string my_name;
+    char input;
+    int input_int;
+    int tavern_rand;
+    string my_name;
+    bool new_game_created = false;
+
+    void check_valid_input_yn() {
+        while (true) {
+            cin >> input;
+            if (input == 'y' || input == 'n' || input == 'Y' || input == 'N') {
+                break;
+            }
+            cout << "Please enter a valid option" << endl;
+            cin.clear();
+            cin.ignore(10000, '\n');
+        }
+        cout << "\033[2J\033[0;0H";
+    }
+
+    void check_valid_input_int(int type) {
+        while (true) {
+            cin >> input_int;
+            bool valid = false;
+            switch (type) {
+                case 3:
+                    valid = (input_int >= 1 && input_int <= 3);
+                    break;
+                case 5:
+                    valid = (input_int >= 1 && input_int <= 5);
+                    break;
+                case 6:
+                    valid = (input_int >= 1 && input_int <= 6);
+                    break;
+            }
+            if (valid) break;
+            cout << "Please enter a valid option" << endl;
+            cin.clear();
+            cin.ignore(10000, '\n');
+        }
+        cout << "\033[2J\033[0;0H";
+    }
 
 public:
+    void PressEnterToContinue() {
+        cout << "Press ENTER to continue... ";
+        cin.ignore();
+        cin.get();
+    }
 
-//virtual fight function
-virtual void fight() {
+    void start_menu() {
+        if (new_game_created) {
+            return;
+        }
 
+        cout << "Have you played before?\n";
+        check_valid_input_yn();
+
+        if (input == 'y' || input == 'Y') {
+            cout << "Would you like to load in your player from the save file?\n";
+            check_valid_input_yn();
+            if (input == 'y' || input == 'Y') {
+                return;
+            } else {
+                start_menu();
+            }
+        } else {
+            cout << "Would you like to start a new game?\n";
+            check_valid_input_yn();
+            if (input == 'y' || input == 'Y') {
+                new_game();
+                new_game_created = true;
+            } else {
+                start_menu();
+            }
+        }
+    }
+
+    void new_game() {
+        cout << "What is your character's name?\n";
+        cin >> my_name;
+        create_new_chr(my_name);
+    }
+
+    void create_new_chr(const string& chr_name) {
+        ofstream myFile("text.txt");
+        if (myFile.is_open()) {
+            myFile << chr_name << endl
+                   << 100 << endl  // health
+                   << 100 << endl  // gold
+                   << 10 << endl   // damage
+                   << 8 << endl    // potions
+                   << 1 << endl    // materials
+                   << 100;         // max_health
+        }
+    }
+
+    int main_area() {
+        cout << "\033[2J\033[0;0H";
+        cout << "Greetings, " << my_name << endl;
+        cout << "Welcome to the Main Road!\n\nFrom here you can decide where your journey goes\n"
+             << "Please choose a course of action\n\n\n";
+        PressEnterToContinue();
+        cout << "\033[2J\033[0;0H";
+        cout << "On the Main Road\n----------------\n\n1.\tTravel to town\n2.\tGather Materials\n"
+             << "3.\tGo on a Hunt\n4.\tCheck Progress\n5.\tSave Game\n\n";
+        check_valid_input_int(5);
+        return input_int;
+    }
+
+    void visit_tavern() {
+        cout << "\033[2J\033[0;0H";
+        cout << "Welcome to the Tavern!\n\n Here you can speak to the locals and get advice";
+        PressEnterToContinue();
+        cout << "\033[2J\033[0;0H";
+
+        cout << "You sit down and order an ale from the barkeep\n\nWhile he's pouring your drink, he leans in and tells you...\n\n";
+        PressEnterToContinue();
+
+        tavern_rand = rand() % 5 + 1;
+        switch (tavern_rand) {
+            case 1:
+                cout << "\nDid you know that you can get special health potions that will increase your total health, but you didn't hear that from me...\n\n";
+                break;
+            case 2:
+                cout << "\nMaterials can be found all over in Asherland, either by fighting enemies and claiming theirs or by collecting it yourself. Best part of that is there's no danger there...\n\n";
+                break;
+            case 3:
+                cout << "\nThey say the creator of this land is very tired and sick of this program and writing it as this is the last thing he did on it. I have no idea what that means but it sounds interesting...\n\n";
+                break;
+            case 4:
+                cout << "\nThey say saving your progress is key to making it anywhere in Asherland. I've heard you can even cheat the system and back out without saving since there's no auto-save feature. I have no idea what that means but it sounds interesting... \n\n";
+                break;
+            case 5:
+                cout << "\nFighting harder enemies may seem worse, but the harder the enemy, the greater the chance at more loot is...\n\n";
+                break;
+        }
+        PressEnterToContinue();
+        cout << "\033[2J\033[0;0H";
+        cout << "You return to town...";
+    }
+
+    int gather_materials() {
+        int mat_count;
+
+        cout << "\033[2J\033[0;0H";
+        cout << "You decide to gather materials\nUseful items, used in crafting and upgrading gear, can be found all over Asherland\n";
+        PressEnterToContinue();
+        cout << "\033[2J\033[0;0H";
+
+        int rand_mat = rand() % 5 + 1;
+        int rand_val = rand() % 2 + 1;
+        mat_count = rand_mat;
+        if (rand_val == 1) {
+            cout << "\nWhile looking for materials, you found an old quarry\nYou decide to mine for a while...\n\n";
+            PressEnterToContinue();
+            cout << "\033[2J\033[0;0H";
+            cout << "Nice, you gained " << mat_count << " stone\n\n";
+        } else {
+            cout << "\nWhile looking for materials, you found an abandoned lumber mill\nYou decide to chop for a while...\n\n";
+            PressEnterToContinue();
+            cout << "\033[2J\033[0;0H";
+            cout << "Nice, you gained " << mat_count << " lumber\n\n";
+        }
+        PressEnterToContinue();
+        cout << "\033[2J\033[0;0H";
+        return mat_count;
+    }
 };
 
-//pause between readouts
-void PressEnterToContinue() {
-  int c;
-  printf( "Press ENTER to continue... " );
-  fflush( stdout );
-  do c = getchar(); while ((c != '\n') && (c != EOF));
-}
-
-//first menu selection screen when game is started
-void start_menu() {
-
-  cout << "Have you played before?\n";
-  check_valid_input_yn();
-
-  if (input == 'y' || input == 'Y') {
-    cout << "Would you like to load in your player from the save file?\n";
-    check_valid_input_yn();
-     if (input == 'y' || input == 'Y') {
-      return;
-    } else {
-      start_menu();
-    }
-  } else {
-    cout << "Would you like to start a new game?\n";
-    check_valid_input_yn();
-      if (input == 'y' || input == 'Y') {
-        new_game();
-    } else {
-      start_menu();
-  }
-  }
-  return; 
-}
-//--------------------------------------------------------
-
-
-//creates new game when called
-// generates chr by asking name
-void new_game() {
-string name = "";
-cout << "What is your character's name?\n";
-cin >> name;
-
-create_new_chr(name);
-
-return;
-
-
-}
-
-//new chr takes inputted name and creates a dummy save with all base stats
-void create_new_chr(string chr_name) {
-  int health = 100;
-  int gold = 100;
-  int damage = 10;
-  int potions = 8;
-  int materials = 1;
-  int max_health = 100;
-  my_name = chr_name;
-
-  //fstream file schenanigans
-  fstream myFile;
-  myFile.open("text.txt");
-  
-  if (myFile.is_open()) {
-
-    myFile << chr_name << endl; 
-    myFile << health << endl;
-    myFile << gold << endl;
-    myFile << damage << endl;
-    myFile << potions << endl;
-    myFile << materials << endl;
-    myFile << max_health;
-  }
-
-  myFile.close();
-
-  return;
-
-}
-
-//main area of the game from main
-//allows user choice and makes main cleaner by being here
-int main_area() {
-cout << "\033[2J\033[0;0H";
-cout << "Greetings, " << my_name << endl;
-cout << "Welcome to the Main Road!";
-cout << "\n\nFrom here you can decide where your journey goes";
-cout << "\nPlease choose a course of action\n\n\n";
-PressEnterToContinue();
-cout << "\033[2J\033[0;0H";
-cout << "On the Main Road";
-cout << "\n----------------";
-cout << "\n\n1.\tTravel to town";
-cout << "\n2.\tGather Materials";
-cout << "\n3.\tGo on a Hunt";
-cout << "\n4.\tCheck Progress";
-cout << "\n5.\tSave Game\n\n";
-check_valid_input_int(5);
-
-return input_int;
-
-}
-
-
-
-//allows dialog for tavern visit
-//gives helpful hints about game 
-void visit_tavern() {
-
-cout << "\033[2J\033[0;0H";
-cout << "Welcome to the Tavern!";
-cout << "\n\n Here you can speak to the locals and get advice";
-PressEnterToContinue();
-cout << "\033[2J\033[0;0H";
-
-cout << "You sit down and order an ale from the barkeep";
-cout << "\n\nWhile he's pouring your drink, he leans in and tells you...\n\n";
-PressEnterToContinue();
-
-tavern_rand = rand() % 5 + 1;
-if (tavern_rand == 1){
-  cout << "\nDid you know that you can get speacial health potions that will increase\nyour total health, but you didn't hear that from me...\n\n";
-}
-if (tavern_rand == 2){
-  cout << "\nMaterials can be found all over in Elaria, either by fighting enemies and claiming theirs or by collecting it yourself. Best part of that is theres no danger there...\n\n";
-}
-if (tavern_rand == 3){
-  cout << "\nThey say the creator of this land is very tired and\nsick of this program and writing it as this is the last thing he did on it\nI have no idea what that means but it sounds interesting...\n\n";
-}
-if (tavern_rand == 4){
-  cout << "\nThey say saving your progress is key to making it anywhere in Elaria,\nI've heard you can even cheat the system and back out without saving since there's no\nauto-save feature\nI have no idea what that means but it sounds interesting... \n\n";
-}
-if (tavern_rand == 5){
-  cout << "\nFighting harder enemies may seem worse, but the harder the enemy, the greater\nthe chance at more loot is...\n\n";
-}
-PressEnterToContinue();
-cout << "\033[2J\033[0;0H";
-
-cout << "You return to town...";
-
-return;
-}
-
-//gather materials function
-//one of main choices
-//allows no loss gathering of materials
-int gather_materials() {
-
-int mat_count;
-
-cout << "\033[2J\033[0;0H";
-
-cout << "You decide to gather materials";
-cout << "\nUseful items, used in crafting and upgrading gear,";
-cout << "\ncan be found all over Elaria\n";
-PressEnterToContinue();
-cout << "\033[2J\033[0;0H";
-
-//lots of randomness to calculate loot gained and dialog
-int rand_mat = rand() % 5 + 1;
-int rand_val = rand() % 2 + 1;
-if (rand_val == 1){
-  cout << "\nWhile looking for materials, you found an old quarry";
-  cout << "\nYou decide to mine for a while...\n\n";
-  PressEnterToContinue();
-  cout << "\033[2J\033[0;0H";
-  mat_count = rand_mat;
-  cout << "Nice, you gained " << mat_count << " stone\n\n";
-  PressEnterToContinue();
-  cout << "\033[2J\033[0;0H";
-  return mat_count;
-} else if (rand_val == 2){
-  cout << "\nWhile looking for materials, you found an abandoned lumber mill";
-  cout << "\nYou decide to chop for a while...\n\n";
-  PressEnterToContinue();
-  cout << "\033[2J\033[0;0H";
-  mat_count = rand_mat;
-  cout << "Nice, you gained " << mat_count << " lumber\n\n";
-  PressEnterToContinue();
-  cout << "\033[2J\033[0;0H";
-  return mat_count;
-}
-
-return 0;
-}
-
-
-//input checkers for valid cin
-void check_valid_input_yn() {
-  bool inputFlag;
-
-  do {
-    cin >> input;
-    //assume that input is valid
-    inputFlag = true;
-
-    //checks if input is valid
-    if (input == 'y' || input == 'n' || input == 'Y' || input == 'N') {
-      break;
-    }
-
-    //passive aggressive message for people who break the rules
-    cout << "Please enter a valid option" << endl;
-    cin.clear();
-    cin.ignore(10000, '\n');
-
-    //no true end condition as inputFlag is always true
-    //only way to end is to activate if statement and break;
-  } while (inputFlag == true);
-
-    cout << "\033[2J\033[0;0H";
-    return;
-}
-
-void check_valid_input_int(int type) {
-  bool inputFlag;
-
-  do {
-    cin >> input_int;
-    //assume that input is valid
-    inputFlag = true;
-
-    if (type == 6){
-    //checks if input is valid
-    if (input_int == 1 || input_int == 2 || input_int == 3 
-    || input_int == 4 || input_int == 5 || input_int == 6 ) {
-      break;
-      }
-    } else if (type == 3) {
-      if (input_int == 1 || input_int == 2 || input_int == 3) {
-      break;
-    }
-    } else if (type == 5) {
-      if (input_int == 1 || input_int == 2 || input_int == 3
-      || input_int == 4 || input_int == 5) {
-      break;
-    }
-    }
-
-    //passive aggressive message for people who break the rules
-    cout << "Please enter a valid option" << endl;
-    cin.clear();
-    cin.ignore(10000, '\n');
-
-    //no true end condition as inputFlag is always true
-    //only way to end is to activate if statement and break;
-  } while (inputFlag == true);
-
-    cout << "\033[2J\033[0;0H";
-    return;
-}
-
-};
-
+#endif // MENU_OPTIONS_H
