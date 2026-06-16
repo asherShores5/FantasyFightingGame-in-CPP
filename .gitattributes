@@ -1,0 +1,8 @@
+# Normalize line endings: keep source/text as LF in the repo regardless of OS, so diffs stay
+# clean across Windows/macOS/Linux contributors.
+* text=auto eol=lf
+
+# Treat these as binary (never normalize/diff as text).
+*.png binary
+*.jpg binary
+*.ico binary

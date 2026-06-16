@@ -1,0 +1,14 @@
+# Dependencies (only dev-time: TypeScript for type-checking; the game itself needs none)
+node_modules/
+
+# Logs / OS cruft
+*.log
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Build output (none today — the game ships as source ES modules — kept for future use)
+dist/

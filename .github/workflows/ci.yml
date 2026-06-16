@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dev dependencies (TypeScript for type-checking)
+        run: npm ci || npm install
+
+      - name: Type-check (tsc --noEmit over JS via checkJs)
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Smoke test (boots the real game loop headlessly)
+        run: npm run smoke
+
+      - name: Balance simulation (asserts the game is winnable across seeds)
+        run: npm run sim

@@ -1,0 +1,21 @@
+{
+  "name": "elaria",
+  "version": "1.0.0",
+  "description": "Elaria — a fantasy fighting RPG played on a retro CRT terminal. Static JS web app.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test",
+    "sim": "node tests/sim.mjs",
+    "smoke": "node tests/smoke.mjs",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm test && npm run smoke && npm run sim",
+    "build": "node tools/build.mjs",
+    "serve": "node tools/serve.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "typescript": "^5.5.0"
+  },
+  "license": "MIT"
+}

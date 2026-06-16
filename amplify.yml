@@ -1,0 +1,24 @@
+# AWS Amplify Hosting build spec. Amplify runs this on every push to the connected branch.
+# The game is a no-build static site, so the "build" just gates on tests and copies the runtime
+# files into dist/. If any check fails, the deploy is aborted — a broken commit never ships.
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        # Gate: type-check, unit tests, smoke test, and the balance sim (asserts the game is
+        # still winnable). Any failure aborts the deploy.
+        - npm run check
+        # Produce the static bundle in dist/ (index.html + src/ + styles/).
+        - npm run build
+  artifacts:
+    # Publish the built bundle, not the repo root — keeps node_modules/tests/docs out of prod.
+    baseDirectory: dist
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
