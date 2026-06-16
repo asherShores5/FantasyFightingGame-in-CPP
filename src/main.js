@@ -22,7 +22,7 @@ import {
 import {
   xpToNext, xpForKill, grantXp, refreshUnlocks, recordKill, isWon, LEVEL_CAP,
 } from './progression.js';
-import { generateEnemy, generateBoss, rollLoot, rollGather } from './encounter.js';
+import { generateEnemy, generateBoss, rollLoot, rollGather, DIFFICULTY } from './encounter.js';
 import { Combat, SKILL_COST } from './combat.js';
 import { maybeEvent } from './events.js';
 import { sfx, setEnabled as setSoundEnabled, isEnabled as soundEnabled } from './audio.js';
@@ -167,6 +167,7 @@ async function menu(title, options, { prompt = 'elaria>', extraVerbs = [] } = {}
     if (p.verb === 'theme') { await setTheme(p.args[0]); continue; }
     if (p.verb === 'sound') { await setSound(p.args[0]); continue; }
     if (p.verb === 'speed') { await setTextSpeed(p.args[0]); continue; }
+    if (p.verb === 'difficulty') { await setDifficulty(p.args[0]); continue; }
     // by number
     if (p.num != null && p.num >= 1 && p.num <= options.length) {
       const opt = options[p.num - 1];
@@ -215,12 +216,19 @@ async function setTextSpeed(arg) {
   await term.print(`Text speed: ${arg}.`, 'info');
 }
 
+async function setDifficulty(arg) {
+  if (!DIFFICULTY[arg]) { await term.print('Usage: difficulty <easy|normal|hard>'); return; }
+  state.settings.difficulty = arg;
+  autosave();
+  await term.print(`Difficulty: ${arg} (enemy damage ×${DIFFICULTY[arg]}). Applies to your next fight.`, 'info');
+}
+
 async function showHelp(options) {
   term.printInstant('Commands here:', 'dim');
   options.forEach((o, i) => {
     if (o.verb) term.printInstant(`  ${i + 1} / ${o.verb} — ${o.label}`, 'dim');
   });
-  term.printInstant('  Global: help, clear, theme <green|amber>, sound <on|off>, speed <slow|normal|fast>', 'dim');
+  term.printInstant('  Global: help, clear, theme <green|amber>, sound <on|off>, speed <slow|normal|fast>, difficulty <easy|normal|hard>', 'dim');
   term.printInstant('');
 }
 
@@ -413,7 +421,7 @@ async function hunt() {
   await term.print(area.flavor, 'flavor');
   if (await tryEvent()) { /* narrated */ }
 
-  const enemy = generateEnemy(area, rng);
+  const enemy = generateEnemy(area, rng, state.settings.difficulty);
   term.printInstant(enemyArt(enemy.name), 'enemy');
   await term.print(`A ${enemy.name} approaches, wielding a ${enemy.weapon}! (${enemy.hp} HP)`);
   await runCombat(area, enemy);
@@ -425,7 +433,7 @@ async function bossFight() {
   await term.print(BOSS_AREA.flavor, 'boss');
   sfx.boss();
   await term.print(BOSS_DIALOGUE.intro, 'boss');
-  const boss = generateBoss();
+  const boss = generateBoss(state.settings.difficulty);
   await runCombat(BOSS_AREA, boss, { isBoss: true });
 }
 

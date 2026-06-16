@@ -159,6 +159,15 @@ test('generated enemy stats fall within the area ranges', () => {
   }
 });
 
+test('difficulty scales enemy damage, not HP', () => {
+  const easy = generateEnemy(forest, makeRng(5), 'easy');
+  const norm = generateEnemy(forest, makeRng(5), 'normal');
+  const hard = generateEnemy(forest, makeRng(5), 'hard');
+  assert.ok(easy.dmg < norm.dmg && norm.dmg < hard.dmg);
+  assert.equal(easy.maxHp, hard.maxHp); // same seed -> HP unaffected
+  assert.equal(norm.dmg, generateEnemy(forest, makeRng(5)).dmg); // default == normal
+});
+
 test('loot scales with area multiplier', () => {
   const r1 = makeRng(5);
   const r2 = makeRng(5);

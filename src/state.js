@@ -32,7 +32,7 @@ export function newGameState(name, seed = freshSeed()) {
       deaths: 0,
       turnsPlayed: 0,
     },
-    settings: { theme: 'green', textSpeed: 'normal', sound: false },
+    settings: { theme: 'green', textSpeed: 'normal', sound: false, difficulty: 'normal' },
     rngSeed: seed >>> 0,
   };
 }

@@ -15,7 +15,7 @@ const ALIASES = {
   stab: 'stab', slash: 'slash', power: 'power', heal: 'heal',
   parry: 'parry', bleed: 'bleed', rage: 'rage', retreat: 'retreat', flee: 'retreat',
   help: 'help', clear: 'clear', theme: 'theme', load: 'load',
-  sound: 'sound', sfx: 'sound', mute: 'sound', speed: 'speed',
+  sound: 'sound', sfx: 'sound', mute: 'sound', speed: 'speed', difficulty: 'difficulty', diff: 'difficulty',
   perk: 'perk', perks: 'perk',
   y: 'yes', yes: 'yes', n: 'no', no: 'no',
 };

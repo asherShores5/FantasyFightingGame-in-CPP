@@ -97,6 +97,7 @@
  * @typedef {Object} Settings
  * @property {string} theme
  * @property {string} textSpeed
+ * @property {string} [difficulty]
  * @property {boolean} sound
  */
 
