@@ -1,0 +1,24 @@
+{
+  // Type-check the plain JS via JSDoc + checkJs. NOTHING is emitted — the .js files stay
+  // runnable as-is with zero build step, honoring the "100% static" guardrail. `npm run
+  // typecheck` (tsc --noEmit) runs this in CI to catch type errors before they ship.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM"],
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true
+  },
+  // Type-check the game source and tooling. Test files use intentionally partial DOM mocks
+  // that are validated by RUNNING them (node --test / node tests/*.mjs), not by the type
+  // checker, so they're excluded here to keep the signal focused on real product code.
+  "include": ["src/**/*.js", "tools/**/*.mjs"],
+  "exclude": ["node_modules", "archive", "tests"]
+}
