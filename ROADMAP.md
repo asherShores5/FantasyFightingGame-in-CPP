@@ -150,15 +150,19 @@ balance sim re-tuned per difficulty.
 ## Phase 5 — Polish & Juice (ongoing)
 *Layered in continuously, not a single milestone.*
 
-### 5.1 Sound (the deferred v1 item)
-- WebAudio (no asset files needed): synthesized typewriter clicks, hit/heal/level/win beeps,
-  low CRT hum. Master + SFX toggles in settings; off by default. Respect `prefers-reduced-motion`
-  cousin: a "reduced sound" sensibility.
+### 5.1 Sound ✅ (was the deferred v1 item)
+- `src/audio.js`: WebAudio, **no asset files** — every sound synthesized from oscillators/noise.
+  Typewriter key-clicks (injected into `terminal.js` via an `onChar` callback so the DOM module
+  stays audio-agnostic) + hit/miss/hurt/heal/skill/win/level/death/boss SFX. Headless-safe
+  (no-op without AudioContext); **off by default**; lazy context init on first enable to satisfy
+  browser autoplay gates. Toggle via `sound on|off`; persisted in settings.
 
-### 5.2 ASCII art layer
-- Per-enemy and per-area **ASCII portraits** in `content/art.js`, shown in combat/area intros.
-- **ASCII meters**: HP/Focus/XP as `[####----]` bars in the HUD instead of bare numbers.
-- A small ASCII map of Elaria for the area-select screen.
+### 5.2 ASCII art layer ✅
+- `src/content/art.js`: per-enemy **ASCII portraits** (with a generic fallback so new foes need
+  no art), per-area **banners**, and a boss splash — shown on hunt intro and combat.
+- `src/ui.js`: pure **ASCII meters** — `bar()` (HP) and `pips()` (Focus) — wired into the combat
+  HUD instead of bare numbers. Unit-tested.
+- (A full ASCII map of Elaria for area-select: deferred — banners cover it for now.)
 
 ### 5.3 Richer text & screen effects
 - Damage **flash** (line color pulse), screen **shake** on big hits (CSS transform), CRT
@@ -186,8 +190,8 @@ balance sim re-tuned per difficulty.
 A pragmatic order that keeps the game shippable at every step:
 
 1. ~~**Phase 1** (foundation)~~ — ✅ **DONE** (type-checking, CI, save hardening, modding seams).
-2. **Phase 5.1–5.2** (sound + ASCII art) — cheap, high-felt-quality, no logic risk. ← **next up**
-3. **Phase 2** (combat depth) — elements + skill tree + difficulty modes.
+2. ~~**Phase 5.1–5.2** (sound + ASCII art)~~ — ✅ **DONE** (synth SFX, portraits, ASCII HUD).
+3. **Phase 2** (combat depth) — elements + skill tree + difficulty modes. ← **next up**
 4. **Phase 3** (content) — crafting, affixes, mini-bosses, then New Game+.
 5. **Phase 4** (seeds/daily/scores) — leverages the now-rich systems.
 6. **Phase 5.3–5.6** (juice, a11y, settings, PWA) — continuous polish + the install story.

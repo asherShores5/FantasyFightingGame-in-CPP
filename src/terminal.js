@@ -5,12 +5,19 @@
 const SPEEDS = { slow: 28, normal: 12, fast: 4, instant: 0 }; // ms per char
 
 export class Terminal {
-  constructor(root, { speed = 'normal' } = {}) {
+  // `onChar` (optional) is called once per printed character, e.g. for a typewriter key-click.
+  // Injected as a callback so this DOM module stays decoupled from the audio module.
+  /**
+   * @param {*} root  the CRT mount element (kept loosely typed; this module owns the DOM)
+   * @param {{speed?: string, onChar?: ((ch: string) => void) | null}} [opts]
+   */
+  constructor(root, { speed = 'normal', onChar = null } = {}) {
     this.root = root;
     this.output = root.querySelector('[data-output]');
     this.inputEl = root.querySelector('[data-input]');
     this.promptEl = root.querySelector('[data-prompt]');
     this.speedMs = SPEEDS[speed] ?? SPEEDS.normal;
+    this.onChar = onChar;
 
     this.printing = false;
     this.fastForward = false;
@@ -19,6 +26,10 @@ export class Terminal {
     this._inputResolver = null;
 
     this._wireInput();
+  }
+
+  setOnChar(fn) {
+    this.onChar = fn;
   }
 
   setSpeed(speed) {
@@ -65,12 +76,15 @@ export class Terminal {
 
     this.printing = true;
     for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
       div.textContent = text.slice(0, i + 1);
       this._scroll();
       if (this.fastForward) {
         div.textContent = text;
         break;
       }
+      // Click on visible characters only (skip spaces) so prose doesn't machine-gun.
+      if (this.onChar && ch !== ' ') this.onChar(ch);
       await this._sleep(this.speedMs);
     }
     this.printing = false;

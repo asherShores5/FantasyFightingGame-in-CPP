@@ -25,6 +25,9 @@ import {
 import { generateEnemy, generateBoss, rollLoot, rollGather } from './encounter.js';
 import { Combat, SKILL_COST } from './combat.js';
 import { maybeEvent } from './events.js';
+import { sfx, setEnabled as setSoundEnabled, isEnabled as soundEnabled } from './audio.js';
+import { enemyArt, areaArt, BOSS_ART } from './content/art.js';
+import { bar, pips } from './ui.js';
 
 /** @type {Terminal} */
 let term;
@@ -44,7 +47,8 @@ function crtEl() {
 // ---- boot ------------------------------------------------------------------
 
 async function boot() {
-  term = new Terminal(crtEl(), { speed: 'normal' });
+  // Typewriter key-click is injected as a callback so terminal.js stays audio-agnostic.
+  term = new Terminal(crtEl(), { speed: 'normal', onChar: () => sfx.key() });
 
   await powerOnSequence();
 
@@ -121,11 +125,12 @@ function persistSeed() {
   state.rngSeed = rng.seed();
 }
 
-// Apply persisted settings (theme, text speed) to the live UI.
+// Apply persisted settings (theme, text speed, sound) to the live UI.
 function applySettings() {
   const s = state.settings || {};
   if (s.theme) crtEl().dataset.theme = s.theme;
   if (s.textSpeed) term.setSpeed(s.textSpeed);
+  setSoundEnabled(!!s.sound);
 }
 
 /**
@@ -160,6 +165,8 @@ async function menu(title, options, { prompt = 'elaria>', extraVerbs = [] } = {}
     if (p.verb === 'help') { await showHelp(options); continue; }
     if (p.verb === 'clear') { term.clear(); continue; }
     if (p.verb === 'theme') { await setTheme(p.args[0]); continue; }
+    if (p.verb === 'sound') { await setSound(p.args[0]); continue; }
+    if (p.verb === 'speed') { await setTextSpeed(p.args[0]); continue; }
     // by number
     if (p.num != null && p.num >= 1 && p.num <= options.length) {
       const opt = options[p.num - 1];
@@ -189,12 +196,31 @@ async function setTheme(name) {
   await term.print(`Phosphor set to ${theme}.`, 'info');
 }
 
+async function setSound(arg) {
+  // `sound` with no arg toggles; `sound on|off` sets explicitly.
+  const on = arg === 'on' ? true : arg === 'off' ? false : !soundEnabled();
+  setSoundEnabled(on);
+  state.settings.sound = on;
+  autosave();
+  if (on) sfx.blip(); // immediate confirmation that audio is live
+  await term.print(`Sound ${on ? 'on' : 'off'}.`, 'info');
+}
+
+async function setTextSpeed(arg) {
+  const valid = ['slow', 'normal', 'fast', 'instant'];
+  if (!valid.includes(arg)) { await term.print('Usage: speed <slow|normal|fast|instant>'); return; }
+  term.setSpeed(arg);
+  state.settings.textSpeed = arg;
+  autosave();
+  await term.print(`Text speed: ${arg}.`, 'info');
+}
+
 async function showHelp(options) {
   term.printInstant('Commands here:', 'dim');
   options.forEach((o, i) => {
     if (o.verb) term.printInstant(`  ${i + 1} / ${o.verb} — ${o.label}`, 'dim');
   });
-  term.printInstant('  Global: help, stats, save, clear, theme <green|amber>', 'dim');
+  term.printInstant('  Global: help, clear, theme <green|amber>, sound <on|off>, speed <slow|normal|fast>', 'dim');
   term.printInstant('');
 }
 
@@ -382,17 +408,22 @@ async function hunt() {
 
   const area = areaById(choice.areaId);
   if (!area) return; // unreachable: choice.areaId always maps to a real area
+  const banner = areaArt(area.id);
+  if (banner) term.printInstant(banner, 'dim');
   await term.print(area.flavor, 'flavor');
   if (await tryEvent()) { /* narrated */ }
 
   const enemy = generateEnemy(area, rng);
+  term.printInstant(enemyArt(enemy.name), 'enemy');
   await term.print(`A ${enemy.name} approaches, wielding a ${enemy.weapon}! (${enemy.hp} HP)`);
   await runCombat(area, enemy);
 }
 
 async function bossFight() {
   term.clear();
+  term.printInstant(BOSS_ART, 'boss');
   await term.print(BOSS_AREA.flavor, 'boss');
+  sfx.boss();
   await term.print(BOSS_DIALOGUE.intro, 'boss');
   const boss = generateBoss();
   await runCombat(BOSS_AREA, boss, { isBoss: true });
@@ -417,11 +448,26 @@ async function runCombat(area, enemy, { isBoss = false } = {}) {
 
     const action = choice.verb;
     const res = fight.playerTurn(action);
-    for (const ev of res.events) await term.print(ev.text, ev.t);
+    for (const ev of res.events) {
+      playEventSfx(ev.t);
+      await term.print(ev.text, ev.t);
+    }
   }
 
   persistSeed();
   await resolveCombat(fight, area, enemy, isBoss);
+}
+
+// Map a combat event type to a sound. No-op when sound is disabled.
+function playEventSfx(type) {
+  switch (type) {
+    case 'hit': case 'dot': sfx.hit(); break;
+    case 'miss': sfx.miss(); break;
+    case 'enemy': sfx.hurt(); break;
+    case 'boss': sfx.boss(); break;
+    case 'heal': sfx.heal(); break;
+    case 'skill': sfx.skill(); break;
+  }
 }
 
 function printHud(fight) {
@@ -431,8 +477,9 @@ function printHud(fight) {
   if (h.status.burn) tags.push(`burn:${h.status.burn}`);
   const tagStr = tags.length ? `  {${tags.join(' ')}}` : '';
   term.printInstant('', '');
-  term.printInstant(`  ${h.enemy.name}: ${h.enemy.hp}/${h.enemy.maxHp} HP${tagStr}`, 'enemy-hud');
-  term.printInstant(`  ${state.player.name}: ${h.player.hp}/${h.player.maxHp} HP   Focus ${h.focus}   Potions ${h.player.potions}`, 'player-hud');
+  term.printInstant(`  ${h.enemy.name.padEnd(18)} ${bar(h.enemy.hp, h.enemy.maxHp, 12)}${tagStr}`, 'enemy-hud');
+  term.printInstant(`  ${state.player.name.padEnd(18)} ${bar(h.player.hp, h.player.maxHp, 12)}`, 'player-hud');
+  term.printInstant(`  Focus ${pips(h.focus)}   Potions ${h.player.potions}`, 'dim');
 }
 
 async function resolveCombat(fight, area, enemy, isBoss) {
@@ -446,9 +493,11 @@ async function resolveCombat(fight, area, enemy, isBoss) {
     state.player.materials += loot.materials;
     const xp = xpForKill(enemy.maxHp, area.xpMult);
     const levelUps = grantXp(state.player, xp);
+    sfx.win();
     await term.print(`Victory! ${enemy.name} is defeated.`, 'info');
     await term.print(`Loot: ${loot.gold} gold, ${loot.materials} materials, ${xp} XP.`);
     for (const lu of levelUps) {
+      sfx.level();
       await term.print(`*** LEVEL UP! You are now level ${lu.level}. Max HP ${lu.maxHp}. +1 perk point. ***`, 'info');
     }
     await afterPowerChange();
@@ -462,6 +511,7 @@ async function resolveCombat(fight, area, enemy, isBoss) {
     const lost = Math.floor(state.player.gold / 2);
     state.player.gold -= lost;
     state.player.hp = state.player.maxHp;
+    sfx.death();
     await term.print(DEATH, 'info');
     await term.print(`(You lost ${lost} gold.)`, 'dim');
     autosave();
@@ -472,6 +522,7 @@ async function victory() {
   state.progress.bossDefeated = true;
   state.player.hp = state.player.maxHp;
   term.clear();
+  sfx.level();
   await term.print(VICTORY, 'boss');
   await term.print('');
   await term.print('— RUN SUMMARY —', 'heading');

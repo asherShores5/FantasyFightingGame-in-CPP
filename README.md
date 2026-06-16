@@ -48,6 +48,9 @@ S3+CloudFront, etc. (Or serve the repo root directly — `dist/` just trims test
   `stab` / `slash` / `power` / `heal` / `parry` / `bleed` / `rage` / `retreat`.
 - Type `help` anywhere to see the commands available in your current screen.
 - `theme green` / `theme amber` switches the phosphor color. Up/Down arrows recall history.
+- `sound on` / `sound off` toggles synthesized SFX (off by default).
+  `speed slow|normal|fast|instant` sets the typewriter speed. Both persist in your save.
+- Combat shows ASCII enemy portraits and `[####----]` HP/Focus meters.
 - Progress saves to your browser (localStorage). `save export` / `save import <code>` moves a
   character between devices.
 

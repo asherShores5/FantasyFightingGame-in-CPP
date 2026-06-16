@@ -13,6 +13,22 @@ See "Verification" and "Post-v1 log" at the bottom. Roadmap lives in [ROADMAP.md
 
 ## Post-v1 Log (newest first)
 
+### Roadmap Phase 5.1–5.2 — Sound + ASCII art ✅
+- **Sound (`src/audio.js`):** synthesized WebAudio SFX, **no asset files** — typewriter clicks
+  (via a `terminal.js` `onChar` callback, keeping that module audio-agnostic) plus
+  hit/miss/hurt/heal/skill/win/level/death/boss cues. Headless-safe no-op, off by default, lazy
+  context init for autoplay gates. New commands: `sound on|off`, `speed slow|normal|fast`
+  (persisted in settings; applied on load).
+- **ASCII art (`src/content/art.js`):** enemy portraits (+generic fallback), area banners, boss
+  splash — shown on hunt intro & combat. **ASCII HUD meters (`src/ui.js`):** `bar()` + `pips()`
+  replace bare HP/Focus numbers; unit-tested (caught + fixed a clamp bug in `bar()`).
+- Tests now 46 (added `tests/ui.test.js` + art-coverage content tests). `npm run check` green.
+
+### Deploy + git
+- **AWS Amplify** deploy config ([amplify.yml](amplify.yml)) — gates deploy on `npm run check`,
+  builds `dist/` via `tools/build.mjs`, publishes the trimmed bundle. README has setup steps.
+- Committed the whole history in logical chunks and pushed to `origin/main`.
+
 ### Project housekeeping + QoL
 - **Archived the original C++ game** to [archive/](archive/) via `git mv` (history preserved),
   with its original README restored alongside. Root README + build paths updated.

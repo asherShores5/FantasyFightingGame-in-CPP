@@ -11,6 +11,7 @@ import { WEAPONS } from '../src/content/weapons.js';
 import { PERKS } from '../src/content/perks.js';
 import { ACCESSORIES } from '../src/content/items_accessories.js';
 import { POTION_BUNDLES, SUPER_POTIONS } from '../src/content/items.js';
+import { enemyArt, areaArt } from '../src/content/art.js';
 
 test('every area has the fields the engine reads', () => {
   for (const a of AREAS) {
@@ -86,5 +87,18 @@ test('accessories have positive costs and an effect', () => {
 test('potion bundles ascend in amount', () => {
   for (let i = 1; i < POTION_BUNDLES.length; i++) {
     assert.ok(POTION_BUNDLES[i].amount > POTION_BUNDLES[i - 1].amount);
+  }
+});
+
+test('every enemy resolves to non-empty ASCII art (fallback guarantees it)', () => {
+  for (const e of ENEMIES) {
+    const art = enemyArt(e.name);
+    assert.ok(Array.isArray(art) && art.length > 0, `no art for ${e.name}`);
+  }
+});
+
+test('every non-boss area resolves to a banner', () => {
+  for (const a of AREAS) {
+    assert.ok(areaArt(a.id), `no area art for ${a.id}`);
   }
 });
