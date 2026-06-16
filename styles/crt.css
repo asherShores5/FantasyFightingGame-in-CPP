@@ -1,0 +1,144 @@
+/* CRT shell (spec §8.1): phosphor palette, bezel, scanlines, flicker, vignette, curvature,
+   glow. Theme is driven by [data-theme] on #crt so `theme amber` can swap the palette. */
+
+:root {
+  --bg: #060d06;
+  --bezel: #1a1a18;
+  --bezel-edge: #2c2c28;
+}
+
+/* Green phosphor (default) */
+.crt[data-theme='green'] {
+  --phosphor: #38ff7a;
+  --phosphor-dim: #1f8f45;
+  --phosphor-bright: #b6ffce;
+  --screen-bg: #04140a;
+}
+
+/* Amber phosphor alternative */
+.crt[data-theme='amber'] {
+  --phosphor: #ffb53b;
+  --phosphor-dim: #a86d12;
+  --phosphor-bright: #ffe0a0;
+  --screen-bg: #160e02;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: radial-gradient(ellipse at center, #0a0a0a 0%, #000 100%);
+  overflow: hidden;
+  font-family: 'Courier New', 'Lucida Console', monospace;
+}
+
+/* Center the monitor; leave a little room for the bezel. */
+.monitor {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2vmin;
+}
+
+.bezel {
+  position: relative;
+  width: min(96vw, 1100px);
+  height: min(92vh, 760px);
+  background: linear-gradient(145deg, var(--bezel-edge), var(--bezel));
+  border-radius: 24px;
+  padding: 2.2vmin;
+  box-shadow:
+    inset 0 0 8px rgba(0, 0, 0, 0.8),
+    0 18px 60px rgba(0, 0, 0, 0.7),
+    0 0 0 2px #000;
+}
+
+.crt {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--screen-bg);
+}
+
+/* Screen surface with subtle barrel curvature + inner shadow. */
+.screen {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: radial-gradient(ellipse at center, var(--screen-bg) 60%, #000 130%);
+  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+  transform: perspective(1200px);
+  animation: flicker 6s infinite steps(60);
+}
+
+/* Horizontal scanlines overlay. */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.28) 3px,
+    rgba(0, 0, 0, 0.28) 4px
+  );
+  z-index: 3;
+  animation: scan-roll 8s linear infinite;
+}
+
+/* Edge vignette. */
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.65) 100%);
+  z-index: 2;
+}
+
+/* Phosphor bloom/glow tint over the whole screen. */
+.glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--phosphor) 8%, transparent) 0%, transparent 70%);
+  mix-blend-mode: screen;
+  z-index: 1;
+}
+
+.brand {
+  position: absolute;
+  bottom: 6px;
+  right: 18px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.18);
+  z-index: 4;
+}
+
+@keyframes flicker {
+  0%, 96%, 100% { opacity: 1; }
+  97% { opacity: 0.94; }
+  98% { opacity: 0.99; }
+  99% { opacity: 0.96; }
+}
+
+@keyframes scan-roll {
+  0% { background-position-y: 0; }
+  100% { background-position-y: 100px; }
+}
+
+/* Respect reduced-motion: kill flicker/scan animation. */
+@media (prefers-reduced-motion: reduce) {
+  .screen { animation: none; }
+  .scanlines { animation: none; }
+}
+
+@media (max-width: 600px) {
+  .bezel { border-radius: 14px; padding: 3vmin; }
+}

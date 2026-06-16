@@ -1,0 +1,96 @@
+/* Terminal text layout (spec §8): phosphor text with glow, prompt line, blinking cursor,
+   scrollback, and color cues for different line types. Text colors derive from the CRT
+   theme variables so the amber theme recolors everything automatically. */
+
+.terminal {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 26px;
+  color: var(--phosphor);
+  text-shadow:
+    0 0 2px var(--phosphor),
+    0 0 6px color-mix(in srgb, var(--phosphor) 60%, transparent);
+  font-size: clamp(12px, 1.7vmin, 18px);
+  line-height: 1.45;
+}
+
+.output {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  scrollbar-width: thin;
+  scrollbar-color: var(--phosphor-dim) transparent;
+}
+.output::-webkit-scrollbar { width: 8px; }
+.output::-webkit-scrollbar-thumb { background: var(--phosphor-dim); border-radius: 4px; }
+
+.line { min-height: 1.45em; }
+
+/* Line-type cues (the second arg to term.print/printInstant). */
+.line.dim        { color: var(--phosphor-dim); text-shadow: 0 0 2px var(--phosphor-dim); }
+.line.heading    { color: var(--phosphor-bright); font-weight: bold; }
+.line.title      { color: var(--phosphor-bright); }
+.line.echo       { color: var(--phosphor-dim); }
+.line.info       { color: var(--phosphor-bright); }
+.line.flavor     { font-style: italic; color: color-mix(in srgb, var(--phosphor) 85%, white); }
+.line.hit        { color: var(--phosphor-bright); }
+.line.miss       { color: var(--phosphor-dim); }
+.line.heal       { color: #7fffd0; text-shadow: 0 0 4px #7fffd0; }
+.line.skill      { color: #9fe0ff; text-shadow: 0 0 4px #9fe0ff; }
+.line.dot        { color: #ff9f6b; text-shadow: 0 0 4px #ff9f6b; }
+.line.enemy      { color: #ff8c8c; text-shadow: 0 0 4px #ff8c8c; }
+.line.boss       { color: #ff5d5d; text-shadow: 0 0 6px #ff3030; font-weight: bold; }
+.line.enemy-hud  { color: #ffb0b0; }
+.line.player-hud { color: var(--phosphor-bright); }
+
+.prompt-line {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid color-mix(in srgb, var(--phosphor-dim) 50%, transparent);
+}
+
+.prompt {
+  color: var(--phosphor-bright);
+  white-space: nowrap;
+}
+
+.input {
+  flex: 1 1 auto;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--phosphor);
+  font-family: inherit;
+  font-size: inherit;
+  text-shadow: inherit;
+  caret-color: transparent; /* we draw our own block cursor */
+}
+
+/* Blinking block cursor rendered after the input via a sibling pseudo-trick:
+   we put it on the prompt-line so it sits right after the text. Simpler approach:
+   animate the input's caret with a custom block using background. */
+.prompt-line::after {
+  content: '';
+  width: 0.6em;
+  height: 1.1em;
+  background: var(--phosphor);
+  box-shadow: 0 0 6px var(--phosphor);
+  animation: blink 1s steps(1) infinite;
+  margin-left: -4px;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prompt-line::after { animation: none; }
+}

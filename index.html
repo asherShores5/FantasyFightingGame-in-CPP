@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>ELARIA — A Fantasy Fighting Game</title>
+  <link rel="stylesheet" href="styles/crt.css" />
+  <link rel="stylesheet" href="styles/terminal.css" />
+</head>
+<body>
+  <!-- The monitor bezel frames the screen; the screen "mostly fills" the viewport. -->
+  <div class="monitor">
+    <div class="bezel">
+      <!-- data-theme drives the phosphor palette (green | amber). -->
+      <div id="crt" class="crt" data-theme="green">
+        <div class="screen">
+          <div class="scanlines" aria-hidden="true"></div>
+          <div class="vignette" aria-hidden="true"></div>
+          <div class="glow" aria-hidden="true"></div>
+
+          <div class="terminal">
+            <div class="output" data-output></div>
+            <div class="prompt-line">
+              <span class="prompt" data-prompt>elaria&gt;</span>
+              <input
+                class="input"
+                data-input
+                type="text"
+                autocomplete="off"
+                autocapitalize="off"
+                autocorrect="off"
+                spellcheck="false"
+                aria-label="terminal input"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="brand">ELARIA-OS</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
